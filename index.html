@@ -11,166 +11,257 @@
         
         body {
             font-family: 'Noto Sans JP', sans-serif;
-            background-color: #f8fafc;
+            background-color: #f0f2f5;
         }
 
         .code-font {
             font-family: 'JetBrains Mono', monospace;
         }
 
+        /* エディタの見た目 */
         .code-area {
             background-color: #1e293b;
             color: #e2e8f0;
             resize: none;
             line-height: 1.6;
+            border: none;
+            width: 100%;
+            height: 100%;
+            padding: 1rem;
+            border-radius: 0.5rem;
         }
 
         .code-area:focus {
             outline: 2px solid #3b82f6;
         }
 
-        /* カスタムスクロールバー */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
+        /* プレビュー時のコード表示 */
+        .preview-box {
+            background-color: #0f172a;
+            color: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            min-height: 150px;
         }
 
+        /* アニメーション */
         .loading-spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #3b82f6;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3b82f6;
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             animation: spin 1s linear infinite;
-            display: inline-block;
         }
 
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* タブのスタイル */
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            font-weight: bold;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-active {
+            border-bottom: 3px solid #3b82f6;
+            color: #3b82f6;
+            background-color: rgba(59, 130, 246, 0.05);
+        }
     </style>
 </head>
 <body class="min-h-screen">
 
-    <div id="app" class="max-w-7xl mx-auto px-4 py-8">
-        <!-- Header -->
-        <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-                <h1 class="text-3xl font-bold text-slate-900">Code Reviewer</h1>
-                <p class="text-slate-500">間違いを正解に変える、あなたのための復習ノート</p>
+    <div id="app" class="max-w-6xl mx-auto px-4 py-6">
+        <!-- アプリ上部ヘッダー -->
+        <header class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="bg-blue-600 text-white w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-lg">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-black text-slate-800 tracking-tight">復習ノート</h1>
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-widest">Code Reviewer Application</p>
+                </div>
             </div>
-            <div class="flex gap-2">
-                <button onclick="createNew()" class="px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition shadow-sm">
+            
+            <div class="flex items-center gap-3">
+                <button onclick="createNew()" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition font-bold text-sm">
                     <i class="fas fa-plus mr-2"></i>新規作成
                 </button>
-                <button onclick="saveEntry()" id="saveBtn" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow-md flex items-center">
+                <button onclick="saveEntry()" id="saveBtn" class="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-200 font-bold flex items-center">
                     <i class="fas fa-save mr-2"></i>保存する
                 </button>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            <!-- Left Sidebar: History -->
-            <aside class="lg:col-span-1">
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 h-[calc(100vh-200px)] flex flex-col">
-                    <h2 class="font-bold text-slate-800 mb-4 flex items-center">
-                        <i class="fas fa-history mr-2 text-blue-500"></i>履歴
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- 左側：履歴リスト -->
+            <aside class="lg:col-span-3">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 h-[calc(100vh-180px)] flex flex-col">
+                    <h2 class="font-black text-slate-700 mb-4 px-2 flex items-center gap-2">
+                        <i class="fas fa-history text-blue-500"></i>履歴
                     </h2>
-                    <div id="historyList" class="flex-1 overflow-y-auto space-y-2">
-                        <!-- History items will be injected here -->
-                        <div class="text-center py-8 text-slate-400 text-sm">読み込み中...</div>
+                    <div id="historyList" class="flex-1 overflow-y-auto space-y-2 custom-scrollbar">
+                        <div class="text-center py-10 text-slate-400 text-xs">読み込み中...</div>
                     </div>
                 </div>
             </aside>
 
-            <!-- Main Workspace -->
-            <main class="lg:col-span-3 space-y-6">
-                <!-- Title & Meta -->
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <div class="flex flex-col md:flex-row gap-4 items-end">
-                        <div class="flex-1">
-                            <label class="block text-sm font-medium text-slate-700 mb-1">タイトル</label>
-                            <input type="text" id="entryTitle" placeholder="タイトルを入力するか、AIで生成..." class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+            <!-- 右側：メイン作業エリア -->
+            <main class="lg:col-span-9 flex flex-col gap-6">
+                <!-- ビュー切り替えタブ -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 flex overflow-hidden">
+                    <button id="btnEditor" onclick="switchView('editor')" class="tab-btn flex-1 flex items-center justify-center gap-2 tab-active">
+                        <i class="fas fa-pencil-alt"></i> 編集モード
+                    </button>
+                    <button id="btnPreview" onclick="switchView('preview')" class="tab-btn flex-1 flex items-center justify-center gap-2 text-slate-400">
+                        <i class="fas fa-eye"></i> プレビュー表示
+                    </button>
+                </div>
+
+                <!-- 1. 編集用コンテンツ -->
+                <div id="editorView" class="space-y-6">
+                    <!-- タイトル入力 -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <div class="flex flex-col md:flex-row gap-4 items-end">
+                            <div class="flex-1 w-full">
+                                <label class="block text-xs font-black text-slate-400 mb-2 uppercase tracking-tighter">Title / タイトル</label>
+                                <input type="text" id="entryTitle" placeholder="タイトルを入力するかAIに任せる..." class="w-full px-4 py-3 rounded-xl border-2 border-slate-100 focus:border-blue-500 outline-none transition-all font-bold text-lg">
+                            </div>
+                            <button onclick="generateTitleFromAI()" id="aiGenBtn" class="px-5 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition flex items-center h-[52px] font-bold shadow-lg shadow-indigo-100">
+                                <i class="fas fa-magic mr-2"></i>AIで命名
+                            </button>
                         </div>
-                        <button onclick="generateTitleFromAI()" id="aiGenBtn" class="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition flex items-center h-[42px]">
-                            <i class="fas fa-magic mr-2"></i>タイトルを自動生成
-                        </button>
+                    </div>
+
+                    <!-- コード入力エリア -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 min-h-[400px]">
+                        <div class="flex flex-col bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                            <div class="px-4 py-3 bg-red-50 border-b border-red-100 flex items-center justify-between">
+                                <span class="text-red-700 font-black text-xs uppercase tracking-widest"><i class="fas fa-times-circle mr-1"></i>自分のミス</span>
+                            </div>
+                            <div class="flex-1 p-2 bg-slate-900">
+                                <textarea id="mistakeCode" class="code-area code-font text-sm" placeholder="// ここに間違えたコードを貼り付けてください..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                            <div class="px-4 py-3 bg-green-50 border-b border-green-100 flex items-center justify-between">
+                                <span class="text-green-700 font-black text-xs uppercase tracking-widest"><i class="fas fa-check-circle mr-1"></i>正解・お手本</span>
+                            </div>
+                            <div class="flex-1 p-2 bg-slate-900">
+                                <textarea id="correctCode" class="code-area code-font text-sm" placeholder="// ここに正しいコードを貼り付けてください..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- メモ入力 -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <label class="block text-xs font-black text-slate-400 mb-2 uppercase">Study Notes / 修正のポイント</label>
+                        <textarea id="notes" rows="3" class="w-full px-4 py-3 rounded-xl border-2 border-slate-100 focus:border-blue-500 outline-none transition-all" placeholder="何が原因だったか、何を学んだかをメモしましょう..."></textarea>
                     </div>
                 </div>
 
-                <!-- Code Editors -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 h-[500px]">
-                    <!-- Mistake Block -->
-                    <div class="flex flex-col bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                        <div class="px-4 py-2 bg-red-50 border-b border-red-100 flex items-center justify-between">
-                            <span class="text-red-700 font-bold text-sm"><i class="fas fa-times-circle mr-1"></i>Mistake (自分のコード)</span>
+                <!-- 2. プレビュー用コンテンツ (最初は非表示) -->
+                <div id="previewView" class="hidden space-y-6">
+                    <div class="bg-white p-8 rounded-3xl shadow-xl border border-slate-200">
+                        <h2 id="viewTitle" class="text-3xl font-black text-slate-800 mb-8 border-l-8 border-blue-600 pl-6 leading-tight">タイトル未設定</h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="space-y-3">
+                                <h3 class="text-sm font-black text-red-500 flex items-center gap-2"><i class="fas fa-bug"></i> BEFORE (間違い)</h3>
+                                <div id="viewMistake" class="preview-box code-font"></div>
+                            </div>
+                            <div class="space-y-3">
+                                <h3 class="text-sm font-black text-green-500 flex items-center gap-2"><i class="fas fa-star"></i> AFTER (正解)</h3>
+                                <div id="viewCorrect" class="preview-box code-font"></div>
+                            </div>
                         </div>
-                        <textarea id="mistakeCode" class="flex-1 p-4 code-area code-font text-sm" placeholder="// ここに間違ったコードを貼り付けてください..."></textarea>
-                    </div>
 
-                    <!-- Correct Block -->
-                    <div class="flex flex-col bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                        <div class="px-4 py-2 bg-green-50 border-b border-green-100 flex items-center justify-between">
-                            <span class="text-green-700 font-bold text-sm"><i class="fas fa-check-circle mr-1"></i>Success (正解のコード)</span>
+                        <div class="mt-10 pt-8 border-t-2 border-dashed border-slate-100">
+                            <h3 class="text-xs font-black text-slate-400 mb-4 uppercase tracking-widest">Learning Insights / 学習の記録</h3>
+                            <div id="viewNotes" class="bg-blue-50 p-6 rounded-2xl text-blue-900 leading-relaxed font-medium italic border border-blue-100"></div>
                         </div>
-                        <textarea id="correctCode" class="flex-1 p-4 code-area code-font text-sm" placeholder="// ここに正しいコードを貼り付けてください..."></textarea>
                     </div>
-                </div>
-
-                <!-- Notes -->
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <label class="block text-sm font-medium text-slate-700 mb-1">学習メモ・修正のポイント</label>
-                    <textarea id="notes" rows="3" class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" placeholder="どこが原因だったか、何を学んだかをメモしましょう..."></textarea>
                 </div>
             </main>
         </div>
     </div>
 
-    <!-- Notification Toast -->
-    <div id="toast" class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-800 text-white px-6 py-3 rounded-lg shadow-xl z-50">
-        メッセージ
+    <!-- 通知トースト -->
+    <div id="toast" class="fixed bottom-8 left-1/2 transform -translate-x-1/2 translate-y-24 opacity-0 transition-all duration-300 bg-slate-900 text-white px-8 py-4 rounded-full shadow-2xl z-50 flex items-center gap-3">
+        <i class="fas fa-check-circle text-green-400" id="toastIcon"></i>
+        <span id="toastText" class="font-bold">メッセージ</span>
     </div>
 
-    <!-- Scripts -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot, query, addDoc, deleteDoc, Timestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, onSnapshot, addDoc, deleteDoc, Timestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Global State
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'code-reviewer-app';
-        const apiKey = ""; // Gemini API Key
+        // --- 設定 ---
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const app = firebaseConfig ? initializeApp(firebaseConfig) : null;
+        const auth = app ? getAuth(app) : null;
+        const db = app ? getFirestore(app) : null;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'code-rev-final';
+        const apiKey = ""; 
 
-        let currentUser = null;
-        let currentEntryId = null;
+        let user = null;
+        let currentId = null;
         let entries = [];
 
-        // UI Helpers
-        const showToast = (msg) => {
-            const toast = document.getElementById('toast');
-            toast.textContent = msg;
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            setTimeout(() => {
-                toast.classList.add('translate-y-20', 'opacity-0');
-            }, 3000);
+        // --- 通知表示 ---
+        const showToast = (msg, icon = "check-circle") => {
+            const t = document.getElementById('toast');
+            document.getElementById('toastText').textContent = msg;
+            document.getElementById('toastIcon').className = `fas fa-${icon} ${icon === 'check-circle' ? 'text-green-400' : 'text-red-400'}`;
+            t.classList.remove('translate-y-24', 'opacity-0');
+            setTimeout(() => t.classList.add('translate-y-24', 'opacity-0'), 3000);
         };
 
-        // Firebase Auth initialization
+        // --- 画面切り替え (グローバルに公開) ---
+        window.switchView = (mode) => {
+            const editorView = document.getElementById('editorView');
+            const previewView = document.getElementById('previewView');
+            const btnEditor = document.getElementById('btnEditor');
+            const btnPreview = document.getElementById('btnPreview');
+
+            if (mode === 'editor') {
+                editorView.classList.remove('hidden');
+                previewView.classList.add('hidden');
+                btnEditor.classList.add('tab-active');
+                btnEditor.classList.remove('text-slate-400');
+                btnPreview.classList.remove('tab-active');
+                btnPreview.classList.add('text-slate-400');
+            } else {
+                document.getElementById('viewTitle').textContent = document.getElementById('entryTitle').value || '無題の記録';
+                document.getElementById('viewMistake').textContent = document.getElementById('mistakeCode').value || '// 未入力';
+                document.getElementById('viewCorrect').textContent = document.getElementById('correctCode').value || '// 未入力';
+                document.getElementById('viewNotes').textContent = document.getElementById('notes').value || 'メモはありません';
+
+                editorView.classList.add('hidden');
+                previewView.classList.remove('hidden');
+                btnPreview.classList.add('tab-active');
+                btnPreview.classList.remove('text-slate-400');
+                btnEditor.classList.remove('tab-active');
+                btnEditor.classList.add('text-slate-400');
+            }
+        };
+
+        // --- 認証 ---
         const initAuth = async () => {
+            if (!auth) return;
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                     await signInWithCustomToken(auth, __initial_auth_token);
@@ -182,171 +273,149 @@
             }
         };
 
-        initAuth();
-
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUser = user;
-                loadHistory();
-            }
-        });
-
-        // Firestore Logic
-        const loadHistory = () => {
-            if (!currentUser) return;
-            
-            const entriesRef = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'entries');
-            
-            // Note: Simple query to avoid complex indexes
-            onSnapshot(entriesRef, (snapshot) => {
-                const historyList = document.getElementById('historyList');
-                historyList.innerHTML = '';
-                
-                entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                
-                // Sort by date in memory
-                entries.sort((a, b) => b.createdAt?.seconds - a.createdAt?.seconds);
-
-                if (entries.length === 0) {
-                    historyList.innerHTML = '<div class="text-center py-8 text-slate-400 text-sm">履歴はありません</div>';
-                    return;
+        if (auth) {
+            initAuth();
+            onAuthStateChanged(auth, (u) => {
+                if (u) {
+                    user = u;
+                    loadData();
                 }
-
-                entries.forEach(entry => {
-                    const item = document.createElement('div');
-                    item.className = `p-3 rounded-lg border cursor-pointer transition flex justify-between items-center ${currentEntryId === entry.id ? 'bg-blue-50 border-blue-200' : 'bg-slate-50 border-slate-100 hover:bg-slate-100'}`;
-                    item.innerHTML = `
-                        <div class="truncate flex-1" onclick="selectEntry('${entry.id}')">
-                            <p class="font-medium text-slate-800 truncate">${entry.title || '無題のメモ'}</p>
-                            <p class="text-[10px] text-slate-400">${entry.createdAt?.toDate().toLocaleString() || ''}</p>
-                        </div>
-                        <button onclick="deleteEntry('${entry.id}')" class="text-slate-300 hover:text-red-500 ml-2">
-                            <i class="fas fa-trash-alt text-xs"></i>
-                        </button>
-                    `;
-                    historyList.appendChild(item);
-                });
-            }, (error) => {
-                console.error("Snapshot error:", error);
-                showToast("データの読み込みに失敗しました");
             });
-        };
+        }
+
+        // --- データ操作 ---
+        function loadData() {
+            if (!user || !db) return;
+            const ref = collection(db, 'artifacts', appId, 'users', user.uid, 'entries');
+            onSnapshot(ref, (snap) => {
+                entries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                entries.sort((a, b) => (b.updatedAt?.seconds || 0) - (a.updatedAt?.seconds || 0));
+                renderHistory();
+            }, (error) => {
+                console.error("Firestore Snapshot Error:", error);
+            });
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('historyList');
+            if (!list) return;
+            list.innerHTML = '';
+            if (entries.length === 0) {
+                list.innerHTML = '<div class="text-center py-10 text-slate-400 text-xs font-bold">まだデータがありません</div>';
+                return;
+            }
+            entries.forEach(entry => {
+                const item = document.createElement('div');
+                item.className = `p-4 rounded-2xl border group cursor-pointer transition flex justify-between items-center ${currentId === entry.id ? 'bg-blue-600 border-blue-600 shadow-xl shadow-blue-100 text-white' : 'bg-white border-slate-100 hover:border-blue-200 hover:shadow-lg'}`;
+                item.innerHTML = `
+                    <div class="truncate flex-1" onclick="selectEntry('${entry.id}')">
+                        <p class="font-black truncate text-sm">${entry.title || '無題'}</p>
+                        <p class="text-[10px] ${currentId === entry.id ? 'text-blue-100' : 'text-slate-400'} mt-1 font-bold">${entry.updatedAt?.toDate().toLocaleDateString()}</p>
+                    </div>
+                    <button onclick="event.stopPropagation(); deleteEntry('${entry.id}')" class="${currentId === entry.id ? 'text-blue-200' : 'text-slate-300'} hover:text-red-500 opacity-0 group-hover:opacity-100 transition px-2">
+                        <i class="fas fa-trash-alt text-xs"></i>
+                    </button>
+                `;
+                list.appendChild(item);
+            });
+        }
 
         window.selectEntry = (id) => {
-            currentEntryId = id;
-            const entry = entries.find(e => e.id === id);
-            if (entry) {
-                document.getElementById('entryTitle').value = entry.title || '';
-                document.getElementById('mistakeCode').value = entry.mistakeCode || '';
-                document.getElementById('correctCode').value = entry.correctCode || '';
-                document.getElementById('notes').value = entry.notes || '';
+            currentId = id;
+            const e = entries.find(x => x.id === id);
+            if (e) {
+                document.getElementById('entryTitle').value = e.title || '';
+                document.getElementById('mistakeCode').value = e.mistakeCode || '';
+                document.getElementById('correctCode').value = e.correctCode || '';
+                document.getElementById('notes').value = e.notes || '';
+                window.switchView('preview');
             }
-            loadHistory(); // Refresh highlighting
+            renderHistory();
         };
 
         window.saveEntry = async () => {
-            if (!currentUser) return;
-            
-            const title = document.getElementById('entryTitle').value || '無題のメモ';
+            if (!user || !db) {
+                showToast("システム準備中です。少し待ってからお試しください。", "exclamation-circle");
+                return;
+            }
+            const title = document.getElementById('entryTitle').value || '無題';
             const mistakeCode = document.getElementById('mistakeCode').value;
             const correctCode = document.getElementById('correctCode').value;
             const notes = document.getElementById('notes').value;
 
-            if (!mistakeCode && !correctCode) {
-                showToast("コードを入力してください");
-                return;
-            }
+            if (!mistakeCode && !correctCode) return showToast("内容を入力してください", "exclamation-circle");
 
-            const saveBtn = document.getElementById('saveBtn');
-            saveBtn.disabled = true;
-            saveBtn.innerHTML = '<div class="loading-spinner mr-2"></div>保存中...';
-
+            const btn = document.getElementById('saveBtn');
+            btn.disabled = true;
             try {
-                const data = {
-                    title,
-                    mistakeCode,
-                    correctCode,
-                    notes,
-                    updatedAt: Timestamp.now()
-                };
-
-                if (currentEntryId) {
-                    await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'entries', currentEntryId), data, { merge: true });
+                const data = { title, mistakeCode, correctCode, notes, updatedAt: Timestamp.now() };
+                if (currentId) {
+                    await setDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'entries', currentId), data, { merge: true });
                 } else {
-                    data.createdAt = Timestamp.now();
-                    const docRef = await addDoc(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'entries'), data);
-                    currentEntryId = docRef.id;
+                    const res = await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'entries'), data);
+                    currentId = res.id;
                 }
                 showToast("保存しました！");
-            } catch (error) {
-                console.error("Save error:", error);
-                showToast("保存に失敗しました");
+            } catch (e) {
+                console.error(e);
+                showToast("保存に失敗しました", "times-circle");
             } finally {
-                saveBtn.disabled = false;
-                saveBtn.innerHTML = '<i class="fas fa-save mr-2"></i>保存する';
+                btn.disabled = false;
             }
         };
 
         window.deleteEntry = async (id) => {
-            if (!confirm("この記録を削除してもよろしいですか？")) return;
-            try {
-                await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'entries', id));
-                if (currentEntryId === id) createNew();
-                showToast("削除しました");
-            } catch (e) {
-                showToast("削除に失敗しました");
+            if (!user || !db) return;
+            if (confirm("本当にこの記録を削除しますか？")) {
+                try {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'entries', id));
+                    if (currentId === id) window.createNew();
+                    showToast("削除しました");
+                } catch (e) {
+                    showToast("削除に失敗しました", "times-circle");
+                }
             }
         };
 
         window.createNew = () => {
-            currentEntryId = null;
+            currentId = null;
             document.getElementById('entryTitle').value = '';
             document.getElementById('mistakeCode').value = '';
             document.getElementById('correctCode').value = '';
             document.getElementById('notes').value = '';
-            loadHistory();
+            window.switchView('editor');
+            renderHistory();
         };
 
-        // Gemini API for Title Generation
         window.generateTitleFromAI = async () => {
-            const mistake = document.getElementById('mistakeCode').value;
-            const correct = document.getElementById('correctCode').value;
+            const m = document.getElementById('mistakeCode').value;
+            const c = document.getElementById('correctCode').value;
+            if (!m && !c) return showToast("コードを入力してください", "info-circle");
 
-            if (!mistake && !correct) {
-                showToast("コードを先に入力してください");
-                return;
-            }
-
-            const aiBtn = document.getElementById('aiGenBtn');
-            aiBtn.disabled = true;
-            aiBtn.innerHTML = '<div class="loading-spinner mr-2"></div>AI分析中...';
-
-            const prompt = `以下の「間違いコード」と「正解コード」を比較し、このプログラミングの学習内容を要約した短いタイトル（15文字以内）を1つだけ出力してください。
-            間違い: ${mistake.substring(0, 500)}
-            正解: ${correct.substring(0, 500)}`;
-
-            const systemPrompt = "あなたはプログラミング講師です。学習者のコードを分析し、何についての修正かを示す簡潔なタイトルを日本語で作成してください。余計な説明は省き、タイトルのみを出力してください。";
+            const btn = document.getElementById('aiGenBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<div class="loading-spinner"></div>';
 
             try {
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: prompt }] }],
-                        systemInstruction: { parts: [{ text: systemPrompt }] }
+                        contents: [{ parts: [{ text: `以下のコード比較に基づき、短い学習タイトル(15文字以内)を作って。間違い:${m} 正解:${c}` }] }],
+                        systemInstruction: { parts: [{ text: "プログラミング講師として、タイトルのみを日本語で出力してください。" }] }
                     })
                 });
-
-                const result = await response.json();
-                const aiTitle = result.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "復習ノート";
-                document.getElementById('entryTitle').value = aiTitle.replace(/["'「」]/g, '');
+                
+                const json = await response.json();
+                const title = json.candidates?.[0]?.content?.parts?.[0]?.text?.trim().replace(/["'「」]/g, '') || "復習ノート";
+                document.getElementById('entryTitle').value = title;
                 showToast("タイトルを生成しました");
-            } catch (error) {
-                console.error("AI Generation failed:", error);
-                showToast("タイトルの生成に失敗しました");
+            } catch (e) {
+                console.error(e);
+                showToast("AI生成に失敗しました");
             } finally {
-                aiBtn.disabled = false;
-                aiBtn.innerHTML = '<i class="fas fa-magic mr-2"></i>タイトルを自動生成';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-magic mr-2"></i>AIで命名';
             }
         };
     </script>
