@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>プログラミング復習ノート</title>
+    <title>プログラミング復習ノート (GitHub Pages版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -18,7 +18,6 @@
             font-family: 'JetBrains Mono', monospace;
         }
 
-        /* エディタの見た目 */
         .code-area {
             background-color: #1e293b;
             color: #e2e8f0;
@@ -35,7 +34,6 @@
             outline: 2px solid #3b82f6;
         }
 
-        /* プレビュー時のコード表示 */
         .preview-box {
             background-color: #0f172a;
             color: #f8fafc;
@@ -48,7 +46,6 @@
             min-height: 150px;
         }
 
-        /* アニメーション */
         .loading-spinner {
             border: 2px solid #f3f3f3;
             border-top: 2px solid #3b82f6;
@@ -63,7 +60,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* タブのスタイル */
         .tab-btn {
             padding: 0.75rem 1.5rem;
             font-weight: bold;
@@ -82,7 +78,7 @@
 <body class="min-h-screen">
 
     <div id="app" class="max-w-6xl mx-auto px-4 py-6">
-        <!-- アプリ上部ヘッダー -->
+        <!-- ヘッダー -->
         <header class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-4">
                 <div class="bg-blue-600 text-white w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-lg">
@@ -90,7 +86,7 @@
                 </div>
                 <div>
                     <h1 class="text-2xl font-black text-slate-800 tracking-tight">復習ノート</h1>
-                    <p class="text-xs text-slate-500 font-bold uppercase tracking-widest">Code Reviewer Application</p>
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-widest">Local Storage Edition</p>
                 </div>
             </div>
             
@@ -112,7 +108,7 @@
                         <i class="fas fa-history text-blue-500"></i>履歴
                     </h2>
                     <div id="historyList" class="flex-1 overflow-y-auto space-y-2 custom-scrollbar">
-                        <div class="text-center py-10 text-slate-400 text-xs">読み込み中...</div>
+                        <!-- ここに履歴が入ります -->
                     </div>
                 </div>
             </aside>
@@ -129,14 +125,13 @@
                     </button>
                 </div>
 
-                <!-- 1. 編集用コンテンツ -->
+                <!-- 編集ビュー -->
                 <div id="editorView" class="space-y-6">
-                    <!-- タイトル入力 -->
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
                         <div class="flex flex-col md:flex-row gap-4 items-end">
                             <div class="flex-1 w-full">
-                                <label class="block text-xs font-black text-slate-400 mb-2 uppercase tracking-tighter">Title / タイトル</label>
-                                <input type="text" id="entryTitle" placeholder="タイトルを入力するかAIに任せる..." class="w-full px-4 py-3 rounded-xl border-2 border-slate-100 focus:border-blue-500 outline-none transition-all font-bold text-lg">
+                                <label class="block text-xs font-black text-slate-400 mb-2 uppercase">Title / タイトル</label>
+                                <input type="text" id="entryTitle" placeholder="タイトルを入力..." class="w-full px-4 py-3 rounded-xl border-2 border-slate-100 focus:border-blue-500 outline-none transition-all font-bold text-lg">
                             </div>
                             <button onclick="generateTitleFromAI()" id="aiGenBtn" class="px-5 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition flex items-center h-[52px] font-bold shadow-lg shadow-indigo-100">
                                 <i class="fas fa-magic mr-2"></i>AIで命名
@@ -144,52 +139,48 @@
                         </div>
                     </div>
 
-                    <!-- コード入力エリア -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 min-h-[400px]">
                         <div class="flex flex-col bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                             <div class="px-4 py-3 bg-red-50 border-b border-red-100 flex items-center justify-between">
-                                <span class="text-red-700 font-black text-xs uppercase tracking-widest"><i class="fas fa-times-circle mr-1"></i>自分のミス</span>
+                                <span class="text-red-700 font-black text-xs uppercase"><i class="fas fa-times-circle mr-1"></i>自分のミス</span>
                             </div>
                             <div class="flex-1 p-2 bg-slate-900">
-                                <textarea id="mistakeCode" class="code-area code-font text-sm" placeholder="// ここに間違えたコードを貼り付けてください..."></textarea>
+                                <textarea id="mistakeCode" class="code-area code-font text-sm" placeholder="// 間違ったコード..."></textarea>
                             </div>
                         </div>
 
                         <div class="flex flex-col bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                             <div class="px-4 py-3 bg-green-50 border-b border-green-100 flex items-center justify-between">
-                                <span class="text-green-700 font-black text-xs uppercase tracking-widest"><i class="fas fa-check-circle mr-1"></i>正解・お手本</span>
+                                <span class="text-green-700 font-black text-xs uppercase"><i class="fas fa-check-circle mr-1"></i>正解・お手本</span>
                             </div>
                             <div class="flex-1 p-2 bg-slate-900">
-                                <textarea id="correctCode" class="code-area code-font text-sm" placeholder="// ここに正しいコードを貼り付けてください..."></textarea>
+                                <textarea id="correctCode" class="code-area code-font text-sm" placeholder="// 正解のコード..."></textarea>
                             </div>
                         </div>
                     </div>
 
-                    <!-- メモ入力 -->
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                        <label class="block text-xs font-black text-slate-400 mb-2 uppercase">Study Notes / 修正のポイント</label>
-                        <textarea id="notes" rows="3" class="w-full px-4 py-3 rounded-xl border-2 border-slate-100 focus:border-blue-500 outline-none transition-all" placeholder="何が原因だったか、何を学んだかをメモしましょう..."></textarea>
+                        <label class="block text-xs font-black text-slate-400 mb-2 uppercase">Study Notes / メモ</label>
+                        <textarea id="notes" rows="3" class="w-full px-4 py-3 rounded-xl border-2 border-slate-100 focus:border-blue-500 outline-none" placeholder="修正のポイントなど..."></textarea>
                     </div>
                 </div>
 
-                <!-- 2. プレビュー用コンテンツ (最初は非表示) -->
+                <!-- プレビュービュー -->
                 <div id="previewView" class="hidden space-y-6">
                     <div class="bg-white p-8 rounded-3xl shadow-xl border border-slate-200">
                         <h2 id="viewTitle" class="text-3xl font-black text-slate-800 mb-8 border-l-8 border-blue-600 pl-6 leading-tight">タイトル未設定</h2>
-                        
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div class="space-y-3">
-                                <h3 class="text-sm font-black text-red-500 flex items-center gap-2"><i class="fas fa-bug"></i> BEFORE (間違い)</h3>
+                            <div>
+                                <h3 class="text-sm font-black text-red-500 mb-3 uppercase tracking-widest">BEFORE</h3>
                                 <div id="viewMistake" class="preview-box code-font"></div>
                             </div>
-                            <div class="space-y-3">
-                                <h3 class="text-sm font-black text-green-500 flex items-center gap-2"><i class="fas fa-star"></i> AFTER (正解)</h3>
+                            <div>
+                                <h3 class="text-sm font-black text-green-500 mb-3 uppercase tracking-widest">AFTER</h3>
                                 <div id="viewCorrect" class="preview-box code-font"></div>
                             </div>
                         </div>
-
                         <div class="mt-10 pt-8 border-t-2 border-dashed border-slate-100">
-                            <h3 class="text-xs font-black text-slate-400 mb-4 uppercase tracking-widest">Learning Insights / 学習の記録</h3>
+                            <h3 class="text-xs font-black text-slate-400 mb-4 uppercase">Learning Insights</h3>
                             <div id="viewNotes" class="bg-blue-50 p-6 rounded-2xl text-blue-900 leading-relaxed font-medium italic border border-blue-100"></div>
                         </div>
                     </div>
@@ -198,39 +189,29 @@
         </div>
     </div>
 
-    <!-- 通知トースト -->
+    <!-- 通知 -->
     <div id="toast" class="fixed bottom-8 left-1/2 transform -translate-x-1/2 translate-y-24 opacity-0 transition-all duration-300 bg-slate-900 text-white px-8 py-4 rounded-full shadow-2xl z-50 flex items-center gap-3">
         <i class="fas fa-check-circle text-green-400" id="toastIcon"></i>
         <span id="toastText" class="font-bold">メッセージ</span>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, onSnapshot, addDoc, deleteDoc, Timestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // --- 設定 ---
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
-        const app = firebaseConfig ? initializeApp(firebaseConfig) : null;
-        const auth = app ? getAuth(app) : null;
-        const db = app ? getFirestore(app) : null;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'code-rev-final';
-        const apiKey = ""; 
-
-        let user = null;
-        let currentId = null;
+    <script>
+        // --- 状態管理 ---
         let entries = [];
+        let currentId = null;
+        const STORAGE_KEY = 'programming_review_notes';
+        const apiKey = ""; // ここにGeminiのAPIキーを入力するとAI命名が使えます
 
-        // --- 通知表示 ---
-        const showToast = (msg, icon = "check-circle") => {
-            const t = document.getElementById('toast');
-            document.getElementById('toastText').textContent = msg;
-            document.getElementById('toastIcon').className = `fas fa-${icon} ${icon === 'check-circle' ? 'text-green-400' : 'text-red-400'}`;
-            t.classList.remove('translate-y-24', 'opacity-0');
-            setTimeout(() => t.classList.add('translate-y-24', 'opacity-0'), 3000);
+        // --- 初期化 ---
+        window.onload = () => {
+            const savedData = localStorage.getItem(STORAGE_KEY);
+            if (savedData) {
+                entries = JSON.parse(savedData);
+            }
+            renderHistory();
         };
 
-        // --- 画面切り替え (グローバルに公開) ---
+        // --- 画面切り替え ---
         window.switchView = (mode) => {
             const editorView = document.getElementById('editorView');
             const previewView = document.getElementById('previewView');
@@ -259,121 +240,89 @@
             }
         };
 
-        // --- 認証 ---
-        const initAuth = async () => {
-            if (!auth) return;
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-            } catch (error) {
-                console.error("Auth Error:", error);
-            }
-        };
-
-        if (auth) {
-            initAuth();
-            onAuthStateChanged(auth, (u) => {
-                if (u) {
-                    user = u;
-                    loadData();
-                }
-            });
-        }
-
         // --- データ操作 ---
-        function loadData() {
-            if (!user || !db) return;
-            const ref = collection(db, 'artifacts', appId, 'users', user.uid, 'entries');
-            onSnapshot(ref, (snap) => {
-                entries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                entries.sort((a, b) => (b.updatedAt?.seconds || 0) - (a.updatedAt?.seconds || 0));
-                renderHistory();
-            }, (error) => {
-                console.error("Firestore Snapshot Error:", error);
-            });
-        }
+        window.saveEntry = () => {
+            const title = document.getElementById('entryTitle').value || '無題の記録';
+            const mistakeCode = document.getElementById('mistakeCode').value;
+            const correctCode = document.getElementById('correctCode').value;
+            const notes = document.getElementById('notes').value;
 
-        function renderHistory() {
-            const list = document.getElementById('historyList');
-            if (!list) return;
-            list.innerHTML = '';
-            if (entries.length === 0) {
-                list.innerHTML = '<div class="text-center py-10 text-slate-400 text-xs font-bold">まだデータがありません</div>';
+            if (!mistakeCode && !correctCode) {
+                showToast("コードを入力してください", "exclamation-circle");
                 return;
             }
+
+            const now = new Date().toISOString();
+            if (currentId) {
+                const index = entries.findIndex(e => e.id === currentId);
+                entries[index] = { ...entries[index], title, mistakeCode, correctCode, notes, updatedAt: now };
+            } else {
+                const newEntry = {
+                    id: Date.now().toString(),
+                    title,
+                    mistakeCode,
+                    correctCode,
+                    notes,
+                    updatedAt: now,
+                    createdAt: now
+                };
+                entries.unshift(newEntry);
+                currentId = newEntry.id;
+            }
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+            renderHistory();
+            showToast("ブラウザに保存しました！");
+        };
+
+        window.renderHistory = () => {
+            const list = document.getElementById('historyList');
+            list.innerHTML = '';
+            
+            if (entries.length === 0) {
+                list.innerHTML = '<div class="text-center py-10 text-slate-400 text-xs font-bold">データがありません</div>';
+                return;
+            }
+
             entries.forEach(entry => {
                 const item = document.createElement('div');
-                item.className = `p-4 rounded-2xl border group cursor-pointer transition flex justify-between items-center ${currentId === entry.id ? 'bg-blue-600 border-blue-600 shadow-xl shadow-blue-100 text-white' : 'bg-white border-slate-100 hover:border-blue-200 hover:shadow-lg'}`;
+                item.className = `p-4 rounded-2xl border group cursor-pointer transition flex justify-between items-center ${currentId === entry.id ? 'bg-blue-600 border-blue-600 text-white shadow-lg' : 'bg-white border-slate-100 hover:border-blue-200'}`;
+                item.onclick = () => selectEntry(entry.id);
+                
+                const date = new Date(entry.updatedAt).toLocaleDateString();
                 item.innerHTML = `
-                    <div class="truncate flex-1" onclick="selectEntry('${entry.id}')">
-                        <p class="font-black truncate text-sm">${entry.title || '無題'}</p>
-                        <p class="text-[10px] ${currentId === entry.id ? 'text-blue-100' : 'text-slate-400'} mt-1 font-bold">${entry.updatedAt?.toDate().toLocaleDateString()}</p>
+                    <div class="truncate flex-1">
+                        <p class="font-black truncate text-sm">${entry.title}</p>
+                        <p class="text-[10px] ${currentId === entry.id ? 'text-blue-100' : 'text-slate-400'} mt-1">${date}</p>
                     </div>
-                    <button onclick="event.stopPropagation(); deleteEntry('${entry.id}')" class="${currentId === entry.id ? 'text-blue-200' : 'text-slate-300'} hover:text-red-500 opacity-0 group-hover:opacity-100 transition px-2">
+                    <button onclick="event.stopPropagation(); deleteEntry('${entry.id}')" class="px-2 opacity-0 group-hover:opacity-100 transition hover:text-red-500">
                         <i class="fas fa-trash-alt text-xs"></i>
                     </button>
                 `;
                 list.appendChild(item);
             });
-        }
+        };
 
         window.selectEntry = (id) => {
             currentId = id;
             const e = entries.find(x => x.id === id);
             if (e) {
-                document.getElementById('entryTitle').value = e.title || '';
-                document.getElementById('mistakeCode').value = e.mistakeCode || '';
-                document.getElementById('correctCode').value = e.correctCode || '';
-                document.getElementById('notes').value = e.notes || '';
-                window.switchView('preview');
+                document.getElementById('entryTitle').value = e.title;
+                document.getElementById('mistakeCode').value = e.mistakeCode;
+                document.getElementById('correctCode').value = e.correctCode;
+                document.getElementById('notes').value = e.notes;
+                switchView('preview');
             }
             renderHistory();
         };
 
-        window.saveEntry = async () => {
-            if (!user || !db) {
-                showToast("システム準備中です。少し待ってからお試しください。", "exclamation-circle");
-                return;
-            }
-            const title = document.getElementById('entryTitle').value || '無題';
-            const mistakeCode = document.getElementById('mistakeCode').value;
-            const correctCode = document.getElementById('correctCode').value;
-            const notes = document.getElementById('notes').value;
-
-            if (!mistakeCode && !correctCode) return showToast("内容を入力してください", "exclamation-circle");
-
-            const btn = document.getElementById('saveBtn');
-            btn.disabled = true;
-            try {
-                const data = { title, mistakeCode, correctCode, notes, updatedAt: Timestamp.now() };
-                if (currentId) {
-                    await setDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'entries', currentId), data, { merge: true });
-                } else {
-                    const res = await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'entries'), data);
-                    currentId = res.id;
-                }
-                showToast("保存しました！");
-            } catch (e) {
-                console.error(e);
-                showToast("保存に失敗しました", "times-circle");
-            } finally {
-                btn.disabled = false;
-            }
-        };
-
-        window.deleteEntry = async (id) => {
-            if (!user || !db) return;
-            if (confirm("本当にこの記録を削除しますか？")) {
-                try {
-                    await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'entries', id));
-                    if (currentId === id) window.createNew();
-                    showToast("削除しました");
-                } catch (e) {
-                    showToast("削除に失敗しました", "times-circle");
-                }
+        window.deleteEntry = (id) => {
+            if (confirm("本当に削除しますか？")) {
+                entries = entries.filter(e => e.id !== id);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+                if (currentId === id) createNew();
+                renderHistory();
+                showToast("削除しました");
             }
         };
 
@@ -383,14 +332,24 @@
             document.getElementById('mistakeCode').value = '';
             document.getElementById('correctCode').value = '';
             document.getElementById('notes').value = '';
-            window.switchView('editor');
+            switchView('editor');
             renderHistory();
         };
 
+        window.showToast = (msg, icon = "check-circle") => {
+            const t = document.getElementById('toast');
+            document.getElementById('toastText').textContent = msg;
+            document.getElementById('toastIcon').className = `fas fa-${icon} ${icon === 'check-circle' ? 'text-green-400' : 'text-red-400'}`;
+            t.classList.remove('translate-y-24', 'opacity-0');
+            setTimeout(() => t.classList.add('translate-y-24', 'opacity-0'), 3000);
+        };
+
+        // --- AI タイトル生成 ---
         window.generateTitleFromAI = async () => {
             const m = document.getElementById('mistakeCode').value;
             const c = document.getElementById('correctCode').value;
             if (!m && !c) return showToast("コードを入力してください", "info-circle");
+            if (!apiKey) return showToast("APIキーが設定されていません", "exclamation-triangle");
 
             const btn = document.getElementById('aiGenBtn');
             btn.disabled = true;
@@ -401,18 +360,16 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: `以下のコード比較に基づき、短い学習タイトル(15文字以内)を作って。間違い:${m} 正解:${c}` }] }],
-                        systemInstruction: { parts: [{ text: "プログラミング講師として、タイトルのみを日本語で出力してください。" }] }
+                        contents: [{ parts: [{ text: `間違い:${m}\n正解:${c}\nこの修正内容を一言(15文字以内)でタイトルにして。タイトルのみ出力。` }] }],
+                        systemInstruction: { parts: [{ text: "プログラミング講師として日本語で出力してください。" }] }
                     })
                 });
-                
                 const json = await response.json();
-                const title = json.candidates?.[0]?.content?.parts?.[0]?.text?.trim().replace(/["'「」]/g, '') || "復習ノート";
-                document.getElementById('entryTitle').value = title;
+                const title = json.candidates?.[0]?.content?.parts?.[0]?.text?.trim().replace(/["'「」]/g, '');
+                document.getElementById('entryTitle').value = title || "復習ノート";
                 showToast("タイトルを生成しました");
             } catch (e) {
-                console.error(e);
-                showToast("AI生成に失敗しました");
+                showToast("生成に失敗しました");
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-magic mr-2"></i>AIで命名';
